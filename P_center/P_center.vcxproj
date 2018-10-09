@@ -116,6 +116,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="dataRead.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Tabu.cpp" />
   </ItemGroup>
