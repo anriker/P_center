@@ -29,7 +29,7 @@
     <ClInclude Include="Tabu.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="dataForm.h">
+    <ClInclude Include="Graph.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

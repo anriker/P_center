@@ -18,27 +18,27 @@ Tabu::Tabu(vector <Nodes> &Node)
 }
 
 void Tabu::init(vector <Nodes> &Node) {
-	*p=rand()% numNode-1;
+	*pcenter=rand()% numNode-1;
 	int longestN;
 	for (int i = 0; i != numNode; i++) {
-		if(p[1]!=i)
+		if(pcenter[1]!=i)
 			PtoNode[1].push_back = Node[i].id;//1对应的中心点是p[1]
 	}
-	longestN = funcation(Node,p);
-	for (int i = 0; i !=numP; i++) {
+	longestN = funcation(Node,pcenter);
+	for (int i = 0; i !=numPcenter; i++) {
 		int tempP=findP(Node,longestN);
 		updatePtoNode(Node,tempP);
-		longestN = funcation(Node, p);
+		longestN = funcation(Node, pcenter);
 
 	}
 }
 
 void Tabu::updatePtoNode(vector <Nodes> &Node,int nextP) {
-	for(int j=0;j!=sizeof(p);j++)
+	for(int j=0;j!=sizeof(pcenter);j++)
 		for (int i = 0; i != numNode; i++) {
-			if (dictance[p[j]][PtoNode[j][i]] > dictance[nextP][PtoNode[j][i]])
-				PtoNode[sizeof(p) + 1][i] = Node[i].id;
-			else PtoNode[sizeof(p) + 1][i] = -1;
+			if (distance[pcenter[j]][PtoNode[j][i]] > distance[nextP][PtoNode[j][i]])
+				PtoNode[sizeof(pcenter) + 1][i] = Node[i].id;
+			else PtoNode[sizeof(pcenter) + 1][i] = -1;
 		}
 }
 
@@ -46,7 +46,7 @@ int Tabu::findP(vector <Nodes> &Node, int longestN) {
 	vector <int> id;
 	int tempP;
 	for (int i = 0; i != numNode; i++) {
-		if (dictance[longestN][Node[i].id] < Sc) {
+		if (distance[longestN][Node[i].id] < Sc) {
 			id.push_back(Node[i].id);
 		}
 	}
@@ -56,15 +56,15 @@ int Tabu::findP(vector <Nodes> &Node, int longestN) {
 	return tempP;
 }
 
-int Tabu::funcation(vector <Nodes> &Node,int *p) {
+int Tabu::funcation(vector <Nodes> &Node,int *pcenter) {
 	int tempid1 = 0;//记录寻找过程中目标函数点
 	int tempid2 = 0;
 	int tempSc = 0;
-	for (int i = 0; i != sizeof(p); i++) {
+	for (int i = 0; i != sizeof(pcenter); i++) {
 		for (int j = 0; j != numNode; j++) {
-			if (p[i] !=Node[j].id && tempSc<dictance[p[i]][Node[j].id]) {
-				tempSc = dictance[p[i]][Node[j].id];
-				tempid1 = p[i];
+			if (pcenter[i] !=Node[j].id && tempSc<distance[pcenter[i]][Node[j].id]) {
+				tempSc = dictance[pcenter[i]][Node[j].id];
+				tempid1 = pcenter[i];
 				tempid2 = Node[j].id;
 			}
 		}

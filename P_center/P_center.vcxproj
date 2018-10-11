@@ -121,7 +121,7 @@
     <ClCompile Include="Tabu.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="dataForm.h" />
+    <ClInclude Include="Graph.h" />
     <ClInclude Include="Tabu.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

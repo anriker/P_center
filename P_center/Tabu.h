@@ -1,12 +1,13 @@
-#ifndef PCENTER_TABU_Z
-#define PCENTER_TABU_Z 
+#ifndef PCENTER_TABU_H
+#define PCENTER_TABU_H 
 #include <iostream>
 #include <time.h>
 #include <math.h>
 #include <vector>
 #include <cstdlib>
-#include "dataForm.h"
+#include "Graph.h"
 #define count 2
+#define numPcenter 10
 #pragma once
 
 using namespace std;
