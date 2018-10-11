@@ -118,6 +118,7 @@
   <ItemGroup>
     <ClCompile Include="dataRead.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="pCenter.cpp" />
     <ClCompile Include="Tabu.cpp" />
   </ItemGroup>
   <ItemGroup>

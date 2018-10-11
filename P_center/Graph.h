@@ -14,7 +14,7 @@
     } ;
 
     std::vector <Nodes> Node;
-    std::vector<std::vector <int>>distance;
-    int *pcenter;
+    std::vector<std::vector <int>> distance;
+    std::vector<int> pcenter;
 //};
 #endif // PCENTER_Graph_H
