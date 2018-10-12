@@ -7,14 +7,15 @@
 //class Graph {
 
 //public:
-    struct Nodes {
-        int id;
-        int	x;
-        int y;
-    } ;
+using namespace std;
+struct Nodes {
+    int id;
+    int	x;
+    int y;
+};
 
-    std::vector <Nodes> Node;
-    std::vector<std::vector <int>> distance;
-    std::vector<int> pcenter;
+vector <Nodes> Node;
+vector <vector <double>> distance;
+vector<int> pcenter;
 //};
 #endif // PCENTER_Graph_H

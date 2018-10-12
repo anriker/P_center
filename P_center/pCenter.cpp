@@ -6,7 +6,7 @@
 using namespace std;
 
 void compDic(vector <Nodes> &Node, int &numNode) {//º∆À„æ‡¿Î
-    distance(numNode, vector <int>(numNode, 0));
+    vector <vector <double>> distance(numNode, vector <double>(numNode, 0));
    // distance[numNode][numNode];
     for (int i = 0; i != Node.size() - 1; i++) {
         for (int j = i + 1; j != Node.size(); j++) {

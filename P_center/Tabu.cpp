@@ -7,7 +7,16 @@ Tabu::Tabu(vector <Nodes> &Node)
 
 	Sc = 0;
 	numNode = Node.size();
-	Table = 0 ;//禁忌表初始化
+    
+
+    vector <vector <int>> Table (numNode,vector<int >(numNode,0));//禁忌表初始化
+    /* Table.resize(numNode);
+    for (int i = 0; i != numNode; i++) {
+        Table[i].resize(numNode) ;
+    }*/
+    vector <vector <int>> F(2, vector<int>(numNode, 0));
+    vector <vector <int>> D(2, vector<int>(numNode, 0));
+   
     adjDic=distance;
 	for (int j = 0; j != 2; j++) {
 		for (int i = 0; i !=Node.size(); i++) {
@@ -17,7 +26,19 @@ Tabu::Tabu(vector <Nodes> &Node)
 	}
 	
 }
-
+void Tabu::compDic(vector <Nodes> &Node, int &numNode) {//计算距离
+    vector <vector <double>> distance(numNode, vector <double>(numNode, 0));
+   // distance[numNode][numNode];
+    for (int i = 0; i != Node.size() - 1; i++) {
+        for (int j = i + 1; j != Node.size(); j++) {
+            distance[Node[i].id][Node[j].id] = sqrt(double(abs(Node[i].x - Node[j].x) + abs(Node[i].y - Node[j].y)));
+            distance[Node[j].id][Node[i].id] = distance[Node[i].id][Node[j].id];
+            if (i == j) {
+                distance[Node[i].id][Node[j].id] = 0;
+            }
+        }
+    }
+}
 void Tabu::init(vector <Nodes> &Node) {
     pcenter.push_back(rand() % numNode - 1);
 	//pcenter[0]=rand()% numNode-1;
@@ -62,10 +83,6 @@ int Tabu::findP(vector <Nodes> &Node, int longestN) {
 }
 
 void Tabu::initDandFtable(vector <Nodes> &Node,int tempP) {
-    int mindicP = max;
-    int mindicPid;
-    int secondmindicP = max;
-    int secondmindicPid;
 
     for (int j = 0; j != numNode; j++) {
         if (pcenter.size() == 1) {
@@ -100,7 +117,7 @@ void Tabu::initDandFtable(vector <Nodes> &Node,int tempP) {
 int Tabu::initfuncation(vector <Nodes> &Node,vector <int> pcenter) {
 	int tempid1 = 0;//记录寻找过程中目标函数点
 	int tempid2 = 0;
-	int tempSc = 0;
+	double tempSc = 0;
 	for (int i = 0; i != pcenter.size(); i++) {
 		for (int j = 0; j != numNode; j++) {
 			if (pcenter[i] !=Node[j].id && tempSc< adjDic[pcenter[i]][Node[j].id]) {
@@ -111,22 +128,38 @@ int Tabu::initfuncation(vector <Nodes> &Node,vector <int> pcenter) {
 		}
 	}
 	Sc = tempSc;
+    ScPoint.Noden = tempid2;
+    ScPoint.Nodep = tempid1;
 	return tempid2;
 }
 
 
 void Tabu::tabusearch(vector <Nodes> &Node) {
     int longestN;
-
+    init(Node);//初始解
+    int iter;//迭代次数
     longestN = initfuncation(Node, pcenter);
+    while (iter<10000)//搜索条件
+    {
+    }
+   
 
 }
-int Tabu::fine_move(vector <Nodes> &Node) {
-	int f;
-    int delt = 0;
+//int Tabu::fine_move(vector <Nodes> &Node) {
+//	int f;
+//    int delt = 0;
+//	return f;//新增的服务边
+//}
 
-
-	return f;//新增的服务边
+int Tabu::findadd_facility(vector <Nodes> &Node) {
+    int f=ScPoint.Noden;
+    vector <int > Newf;
+    for (int i = 0; i != numNode; i++) {
+        if (adjDic[f][Node[i].id] < Sc) {
+            Newf.push_back(Node[i].id);
+        }
+    }
+    
 }
 
 
@@ -149,9 +182,9 @@ void Tabu::add_facility(vector <Nodes> &Node,int f) {//有问题,f如何找
     //pcenter[numPcenter + 1] = f;
 }
 
-int Tabu::findremove_facility(vector <Nodes> &Node) {//前p个服务点中找到一个删除后产生的最大服务边最小的点删
+int Tabu::findremove_facility(vector <Nodes> &Node,int f) {//前p个服务点中找到一个删除后产生的最大服务边最小的点删(禁忌策略找交换对<f,i>）
     vector <int> Mf(numPcenter,0);
-    int tempSc=0;
+    double tempSc=0;
     int tempScid;
     for (int j = 0; j != numPcenter; j++) {
         for (int i = 0; i != numNode; i++) {
@@ -173,15 +206,20 @@ int Tabu::findremove_facility(vector <Nodes> &Node) {//前p个服务点中找到一个删除
             }
         }
     }
-    int f = pcenter[tempScid];
+    int i = pcenter[tempScid];
     //更新Sc
     if (tempSc > Sc) Sc = tempSc;
-    return tempScid;//找到删除边在数组中的位置
+    return i;
+    //return tempScid;//找到删除边在数组中的位置
 }
 
-void Tabu::remove_facility(vector <Nodes> &Node) {
-    int tempPlace = findremove_facility(Node);
-    int f = pcenter[tempPlace];
+void Tabu::remove_facility(vector <Nodes> &Node,int f) {
+    int tempPlace;
+    for (int j = 0; j != pcenter.size(); j++) {
+        if (pcenter[j] == f) tempPlace = j;
+    }
+    //int f = pcenter[tempPlace];
+    
     for (int i = 0; i != numNode; i++) {
         if (F[Node[i].id][0] = f) {
             D[Node[i].id][0] = D[Node[i].id][1];
@@ -207,7 +245,7 @@ void Tabu::remove_facility(vector <Nodes> &Node) {
 
 
 int Tabu::find_next(vector <Nodes> &Node, int v,int fplace) {
-    int tempsecondmax=max;
+    double tempsecondmax = max;
     int tempsecondmaxP;
     for (int j = 0; j != numPcenter+1; j++) {
         if (j != fplace && pcenter[j]!=F[v][pcenter[j]]&&tempsecondmax<adjDic[pcenter[j]][v]) {
@@ -221,8 +259,9 @@ int Tabu::find_next(vector <Nodes> &Node, int v,int fplace) {
 
 void Tabu::find_pair(vector <Nodes> &Node,int f) {
     
-	add_facility(Node,f);
-	remove_facility(Node);
+	add_facility(Node,f);//f为添加的服务点
+    int i=findremove_facility(Node,f);
+	remove_facility(Node,i);//i为删除的服务点
 }
 
 Tabu::~Tabu()
