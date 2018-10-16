@@ -18,21 +18,21 @@
     <ClCompile Include="main.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
-    <ClCompile Include="Tabu.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
-    <ClCompile Include="dataRead.cpp">
-      <Filter>源文件</Filter>
-    </ClCompile>
     <ClCompile Include="pCenter.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Solver.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="Graph.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Tabu.h">
+    <ClInclude Include="Graph.h">
       <Filter>头文件</Filter>
     </ClInclude>
-    <ClInclude Include="Graph.h">
+    <ClInclude Include="Solver.h">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

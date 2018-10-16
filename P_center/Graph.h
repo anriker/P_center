@@ -4,18 +4,23 @@
 #include <iostream>
 #include <string>
 #include <vector>
-//class Graph {
 
-//public:
 using namespace std;
-struct Nodes {
-    int id;
-    int	x;
-    int y;
-};
+class Graph {
 
-vector <Nodes> Node;
-vector <vector <double>> distance;
-vector<int> pcenter;
-//};
+public:
+   
+    struct Nodes {
+        int id;
+        int	x;
+        int y;
+    };
+    Nodes tempNode;
+    vector <Nodes> Node;
+    //vector <vector <double>> distance;
+    double **distance;
+    vector<int> pcenter;
+    /*Graph() :distance(maxNumNode, vector<double >(maxNumNode, 0)) {}
+    ~Graph() {}*/
+};
 #endif // PCENTER_Graph_H
