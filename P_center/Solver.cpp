@@ -4,6 +4,7 @@ using namespace std;
 static int iter = 1;
 Tabu::Tabu() {}
 Tabu::Tabu(Graph &G,int numP) :Sc(0),
+    flag(1),
     numNode(G.Node.size()), 
     numPcenter(numP),
     TabuTenure(numNode, vector<int >(numNode, 0)),  
@@ -46,6 +47,7 @@ Tabu::Tabu(Graph &G,int numP) :Sc(0),
 //        }
 //    }
 //}
+
 void Tabu::tabusearch(Graph &G) {
     //int longestN;//¸ÄÎª×î³¤·þÎñ±ß¼°ÏàÓ¦µÄ±»·þÎñµã
     pair Pair = { 0,0 };
@@ -54,18 +56,27 @@ void Tabu::tabusearch(Graph &G) {
     //int iter;//µü´ú´ÎÊý
     initfuncation(G, pcenter, ScInfo);
 
-    while (iter < 10000)//ËÑË÷Ìõ¼þ
+    while (flag==1)//ËÑË÷Ìõ¼þ
     {
+        flag = 0;
         find_pair(G, ScInfo, Pair);//tabu·¢ÏÖ½»»»¶Ô
-        change_pair(G, Pair);//¸üÐÂ½»»»¶Ô
+        change_pair(G, Pair);//¸üÐÂ½»»»¶Ô 
+        cout << "the iter: " << iter << " ,the Sc is:" << ScInfo.Sc << endl;
+        for (int i = 0; i != pcenter.size(); i++) {            
+            cout << pcenter[i] << " ";
+        }
+        cout << endl;
         iter++;
     }
+    
     for (int i = 0; i != pcenter.size(); i++) {
         cout << pcenter[i] << " ";
     }
+    cout << endl;
     cout << ScInfo.Sc << endl;
 
 }
+
 void Tabu::init(Graph &G, Scinfo &ScInfo) {
     pcenter.push_back(rand() % numNode - 1);
     //pcenter[0]=rand()% numNode-1;
@@ -221,27 +232,41 @@ void Tabu::find_pair(Graph &G, Scinfo &ScInfo, pair &Pair) {//È·¶¨½»»»¶Ô<nodei£¬
             }
         }
         vector <int> Mf(numPcenter, 0);
+        
         for (int t = 0; t!= pcenter.size(); t++) {//Ñ°ÕÒ¼ÓÈë½ÚµãºóÉ¾³ýÖÐÐÄ½Úµãpcenter[j]µÃµ½µÄ×î³¤·þÎñ±ß
             for (int j = 0; j != numNode; j++) {
-                if (tempF[j][0] == pcenter[t] ){//&& Mf[t] < tempD[Node[j].id][1]) {
+                if (tempF[j][0] == pcenter[t] && Mf[t] < tempD[j][1]){//&& Mf[t] < tempD[j][1]) {
                     Mf[t] = tempD[j][1];
                 }
             }
         }
-        tempScinfo[i].Sc = Mf[0];//´íÎó
+        tempScinfo[i].Sc = Mf[0];
+        tempPair1.centerid = pcenter[0];
+        tempPair1.delt = ScInfo.Sc - tempScinfo[i].Sc;
         for (int t = 1; t != pcenter.size(); t++) {
             if (tempScinfo[i].Sc > Mf[t]) {
                 tempScinfo[i].Sc = Mf[t];
-                tempScinfo[i].Scid = pcenter[t];
+                tempPair1.centerid = pcenter[t];
+                tempPair1.delt = ScInfo.Sc - tempScinfo[i].Sc;
+                //tempScinfo[i].Scid = pcenter[t];
             } else if (tempScinfo[i].Sc == Mf[t]) {
                 if (rand() % 2 == 0) {//ÏàµÈÊ±£¬Ëæ»úÑ¡Ôñ
                     tempScinfo[i].Sc = Mf[t];
+                    //tempScinfo[i].Scid = pcenter[t];
                     tempPair1.centerid = pcenter[t];
+                    tempPair1.delt = ScInfo.Sc - tempScinfo[i].Sc;
+                   
                 }
             }
-            tempPair1.delt = ScInfo.Sc - tempScinfo[i].Sc;
+            
         }
         tempPair.push_back(tempPair1);
+    }
+    for (int i = 0; i != id.size(); i++) {
+        cout << tempPair[i].delt << ",";
+        if (tempPair[i].delt > 0) {
+            flag = 1;
+        }
     }
     for (int i = 0; i != id.size(); i++) {
         if (TabuTenure[tempPair[i].centerid][tempPair[i].nodeid] < iter) {//update the no_tabu best move,ÓÐ´íÎó;
@@ -289,7 +314,7 @@ void Tabu::add_facility(Graph &G, pair &Pair) {
         }
 
     }
-    pcenter.push_back(Pair.nodeid);
+   // pcenter.push_back(Pair.nodeid);
     //pcenter[numPcenter + 1] = f;
 }
 
@@ -326,9 +351,12 @@ int Tabu::findremove_facility(vector <Nodes> &Node, int f) {//Ç°p¸ö·þÎñµãÖÐÕÒµ½Ò
 #endif
 
 void Tabu::remove_facility(Graph &G, pair &Pair) {
-    int tempPlace;
+    int tempPlace=0;
     for (int j = 0; j != pcenter.size(); j++) {
-        if (pcenter[j] == Pair.centerid) tempPlace = j;
+        if (pcenter[j] == Pair.centerid) {
+            //tempPlace = j;
+            pcenter[j] = Pair.nodeid;
+        }
     }
     //int f = pcenter[tempPlace];
 
@@ -336,18 +364,28 @@ void Tabu::remove_facility(Graph &G, pair &Pair) {
         if (F[i][0] = Pair.centerid) {
             D[i][0] = D[i][1];
             F[i][0] = F[i][1];
-            int nextp = find_next(G, i, tempPlace);
+            int nextp = find_next(G, i, Pair.centerid);
+            if (nextp == -1) {
+                flag = 0;
+               // pcenter[j] = Pair.centerid;
+                break;
+            }
             D[i][1] = G.distance[nextp][i];
             F[i][1] = nextp;
 
         } else if (F[i][1] = Pair.centerid) {
-            int nextp = find_next(G, i, tempPlace);
+            int nextp = find_next(G, i, Pair.centerid);
+            if (nextp == -1) {
+                flag = 0;
+                //pcenter[j] = Pair.centerid;
+                break;
+            }
             D[i][1] = G.distance[nextp][i];
             F[i][1] = nextp;
         }
     }
-    pcenter[tempPlace] = pcenter[numPcenter + 1];
-    pcenter[numPcenter + 1] = -1;
+    
+    //pcenter[numPcenter + 1] = -1;
 }
 /*MfÎªÉ¾³ý½Úµãfºó²úÉúµÄ×î³¤·þÎñ±ß¾àÀë£¨²»ÊÇµ±Ç°ÀúÊ·×î³¤¾àÀë£©£¬
 ¶Ô±ÈËùÓÐ·þÎñ±ßÉ¾³ýºó²úÉúµÄMf£¬Ñ¡Ôñ×îÐ¡µÄÉ¾³ýÆä¶ÔÓ¦µÄµã,
@@ -355,15 +393,16 @@ void Tabu::remove_facility(Graph &G, pair &Pair) {
 */
 
 
-int Tabu::find_next(Graph &G, int v, int fplace) {
+int Tabu::find_next(Graph &G, int v, int fcenter) {
     double tempsecondmax = max;
-    int tempsecondmaxP;
-    for (int j = 0; j != numPcenter + 1; j++) {
-        if (j != fplace && pcenter[j] != F[v][pcenter[j]] && tempsecondmax < G.distance[pcenter[j]][v]) {
+    int tempsecondmaxP=-1;
+    for (int j = 0; j != numPcenter; j++) {
+        if (pcenter[j] != F[v][0] && tempsecondmax > G.distance[pcenter[j]][v]) {
             tempsecondmax = G.distance[pcenter[j]][v];
             tempsecondmaxP = pcenter[j];
-        }
+        } 
     }
+
     return tempsecondmaxP;
 }
 

@@ -24,6 +24,7 @@ int main(int argv, int argc[]) {
     cin >> numP;
     Tabu T(G,numP);
     T.tabusearch(G);
+    system("pause");
     return 0;
 }
 

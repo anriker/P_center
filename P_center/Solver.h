@@ -15,6 +15,7 @@ using namespace std;
  class Tabu
 {
 	double Sc;//目标函数值，即最大距离
+    int flag;
     int numNode;
     int numPcenter;
 	//int **Table;//禁忌表
@@ -61,7 +62,7 @@ public:
 	void remove_facility(Graph &G,pair &Pair);//删除服务点f，更新F表和D表
 	int fine_move(Graph &G);//寻找新增节点i，禁忌实现？
 	void change_pair(Graph &G,pair &Pair);//比较目标函数值Sc和新增节点后产生的距离Mf，取大者。
-    int find_next(Graph &G, int v,int fplace);
+    int find_next(Graph &G, int v,int fcenter);
 	~Tabu();
 };
 
