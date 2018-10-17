@@ -8,8 +8,8 @@ Tabu::Tabu(Graph &G,int numP) :Sc(0),
     numPcenter(numP),
     TabuTenure(numNode, vector<int >(numNode, 0)),  
     //pcenter(numP,0),
-    F(2, vector<int>(numNode, 0)),
-    D(2, vector<double>(numNode, 0))
+    F(numNode, vector<int>(2, 0)),
+    D(numNode, vector<double>(2, 0))
     //G.distance(G.distance)
 {
 
@@ -38,7 +38,7 @@ Tabu::Tabu(Graph &G,int numP) :Sc(0),
 //   // distance[numNode][numNode];
 //    for (int i = 0; i != numNode - 1; i++) {
 //        for (int j = i + 1; j != numNode; j++) {
-//            distance[G.Node[i].id][Node[j].id] = sqrt(double(abs(Node[i].x - Node[j].x) + abs(Node[i].y - Node[j].y)));
+//            distance[i][Node[j].id] = sqrt(double(abs(Node[i].x - Node[j].x) + abs(Node[i].y - Node[j].y)));
 //            distance[Node[j].id][Node[i].id] = distance[Node[i].id][Node[j].id];
 //            if (i == j) {
 //                distance[Node[i].id][Node[j].id] = 0;
@@ -75,8 +75,8 @@ void Tabu::init(Graph &G, Scinfo &ScInfo) {
     //		PtoNode[0].push_back = Node[i].id;//1对应的中心点是p[1]
     //}
     for (int i = 0; i != numNode; i++) {
-        D[G.Node[i].id][0] = G.distance[pcenter[0]][G.Node[i].id];
-        F[G.Node[i].id][0] = pcenter[0];
+        D[i][0] = G.distance[pcenter[0]][i];
+        F[i][0] = pcenter[0];
 
     }
     
@@ -103,10 +103,11 @@ int Tabu::findP(Graph &G, Scinfo &ScInfo) {
     vector <int> id;
     int tempP;
     for (int i = 0; i != numNode; i++) {
-        if (G.distance[ScInfo.Scid][G.Node[i].id] < Sc) {
-            id.push_back(G.Node[i].id);
+        if (G.distance[ScInfo.Scid][i] < Sc) {
+            id.push_back(i);
+            //cout << id[i] << " ";
         }
-        cout << id[i] << " ";
+       
     }cout << endl;
    
     int tempi=0;
@@ -126,28 +127,28 @@ void Tabu::initDandFtable(Graph &G, int tempP) {
 
     for (int j = 0; j != numNode; j++) {
         if (pcenter.size() == 1) {
-            if (G.distance[pcenter[0]][G.Node[j].id] < G.distance[tempP][G.Node[j].id]) {
-                D[G.Node[j].id][0] = G.distance[pcenter[0]][G.Node[j].id];
-                F[G.Node[j].id][0] = pcenter[0];
-                D[G.Node[j].id][1] = G.distance[tempP][G.Node[j].id];
-                F[G.Node[j].id][1] = tempP;
+            if (G.distance[pcenter[0]][j] < G.distance[tempP][j]) {
+                D[j][0] = G.distance[pcenter[0]][j];
+                F[j][0] = pcenter[0];
+                D[j][1] = G.distance[tempP][j];
+                F[j][1] = tempP;
             } else {
-                D[G.Node[j].id][0] = G.distance[tempP][G.Node[j].id];
-                F[G.Node[j].id][0] = tempP;
-                D[G.Node[j].id][1] = G.distance[pcenter[0]][G.Node[j].id];
-                F[G.Node[j].id][1] = pcenter[0];
+                D[j][0] = G.distance[tempP][j];
+                F[j][0] = tempP;
+                D[j][1] = G.distance[pcenter[0]][j];
+                F[j][1] = pcenter[0];
             }
         } else {
 
-            if (G.distance[tempP][G.Node[j].id] < D[G.Node[j].id][0]) {
-                D[G.Node[j].id][1] = D[G.Node[j].id][0];
-                F[G.Node[j].id][1] = F[G.Node[j].id][0];
-                D[G.Node[j].id][0] = G.distance[tempP][G.Node[j].id];
-                F[G.Node[j].id][0] = tempP;
+            if (G.distance[tempP][j] < D[j][0]) {
+                D[j][1] = D[j][0];
+                F[j][1] = F[j][0];
+                D[j][0] = G.distance[tempP][j];
+                F[j][0] = tempP;
 
-            } else if (G.distance[tempP][G.Node[j].id] < D[G.Node[j].id][1]) {
-                D[G.Node[j].id][1] = G.distance[tempP][G.Node[j].id];
-                F[G.Node[j].id][1] = tempP;
+            } else if (G.distance[tempP][j] < D[j][1]) {
+                D[j][1] = G.distance[tempP][j];
+                F[j][1] = tempP;
             }
 
         }
@@ -160,10 +161,10 @@ void Tabu::initfuncation(Graph &G, vector <int> pcenter, Scinfo &ScInfo) {
     double tempSc = 0;
     for (int i = 0; i != pcenter.size(); i++) {
         for (int j = 0; j != numNode; j++) {
-            if (pcenter[i] != G.Node[j].id && F[G.Node[j].id][0] == pcenter[i] && tempSc < D[G.Node[j].id][0]) {
-                tempSc = D[G.Node[j].id][0];//G.distance[pcenter[i]][G.Node[j].id];
+            if (pcenter[i] != j && F[j][0] == pcenter[i] && tempSc < D[j][0]) {
+                tempSc = D[j][0];//G.distance[pcenter[i]][j];
                 tempid1 = pcenter[i];
-                tempid2 = G.Node[j].id;
+                tempid2 = j;
             }
         }
     }
@@ -190,7 +191,6 @@ void Tabu::initfuncation(Graph &G, vector <int> pcenter, Scinfo &ScInfo) {
 void Tabu::find_pair(Graph &G, Scinfo &ScInfo, pair &Pair) {//确定交换对<nodei，centerj>
     double delt = 0.0;
     vector <int> id;//记录小于最长边的点对应的小于最长服务边的点
-    vector <Scinfo> tempScinfo;
     vector <pair> tempPair;
     int tempP;
     pair tabu_pair = { 0 };
@@ -198,10 +198,11 @@ void Tabu::find_pair(Graph &G, Scinfo &ScInfo, pair &Pair) {//确定交换对<nodei，
     int no_tabu_samenumber=0;
     int tabu_samenumber=0;
     for (int i = 0; i != numNode; i++) {
-        if (G.distance[ScInfo.Scid][G.Node[i].id] < Sc) {
-            id.push_back(G.Node[i].id);
+        if (G.distance[ScInfo.Scid][i] < Sc) {
+            id.push_back(i);
         }
     }
+    vector <Scinfo> tempScinfo(id.size());
     for (int i = 0; i != id.size(); i++) {
         //找最好的交换对
         pair tempPair1;
@@ -209,25 +210,25 @@ void Tabu::find_pair(Graph &G, Scinfo &ScInfo, pair &Pair) {//确定交换对<nodei，
         vector <vector <int> > tempF(F);
         vector <vector <double> > tempD(D);
         for (int j = 0; j != numNode; j++) {//添加了服务点id[i]
-            if (tempD[G.Node[j].id][0] > G.distance[id[i]][G.Node[j].id]) {
-                tempD[G.Node[j].id][1] = tempD[G.Node[j].id][0];
-                tempF[G.Node[j].id][1] = tempF[G.Node[j].id][0];
-                tempD[G.Node[j].id][0] = G.distance[id[i]][G.Node[j].id];
-                tempF[G.Node[j].id][0] = id[i];
-            } else if (tempD[G.Node[i].id][1] > G.distance[id[i]][G.Node[j].id ]) {
-                tempD[G.Node[j].id][1] = G.distance[id[i]][G.Node[j].id];
-                tempF[G.Node[j].id][1] = id[i];
+            if (tempD[j][0] > G.distance[id[i]][j]) {
+                tempD[j][1] = tempD[j][0];
+                tempF[j][1] = tempF[j][0];
+                tempD[j][0] = G.distance[id[i]][j];
+                tempF[j][0] = id[i];
+            } else if (tempD[j][1] > G.distance[id[i]][j ]) {
+                tempD[j][1] = G.distance[id[i]][j];
+                tempF[j][1] = id[i];
             }
         }
         vector <int> Mf(numPcenter, 0);
         for (int t = 0; t!= pcenter.size(); t++) {//寻找加入节点后删除中心节点pcenter[j]得到的最长服务边
             for (int j = 0; j != numNode; j++) {
-                if (tempF[G.Node[j].id][0] == pcenter[t] ){//&& Mf[t] < tempD[Node[j].id][1]) {
-                    Mf[t] = tempD[G.Node[j].id][1];
+                if (tempF[j][0] == pcenter[t] ){//&& Mf[t] < tempD[Node[j].id][1]) {
+                    Mf[t] = tempD[j][1];
                 }
             }
         }
-        tempScinfo[i].Sc = Mf[0];
+        tempScinfo[i].Sc = Mf[0];//错误
         for (int t = 1; t != pcenter.size(); t++) {
             if (tempScinfo[i].Sc > Mf[t]) {
                 tempScinfo[i].Sc = Mf[t];
@@ -243,7 +244,7 @@ void Tabu::find_pair(Graph &G, Scinfo &ScInfo, pair &Pair) {//确定交换对<nodei，
         tempPair.push_back(tempPair1);
     }
     for (int i = 0; i != id.size(); i++) {
-        if (TabuTenure[tempPair[i].centerid][tempPair[i].nodeid] < iter) {//update the no_tabu best move;
+        if (TabuTenure[tempPair[i].centerid][tempPair[i].nodeid] < iter) {//update the no_tabu best move,有错误;
             if (tempPair[i].delt > no_tabu_pair.delt) {
                 no_tabu_pair = tempPair[i];
                 no_tabu_samenumber = 1;
@@ -276,15 +277,15 @@ void Tabu::find_pair(Graph &G, Scinfo &ScInfo, pair &Pair) {//确定交换对<nodei，
 
 void Tabu::add_facility(Graph &G, pair &Pair) {
     for (int i = 0; i != numNode; i++) {
-        if (D[G.Node[i].id][0] > G.distance[Pair.nodeid][G.Node[i].id]) {
-            D[G.Node[i].id][1] = D[G.Node[i].id][0];
-            F[G.Node[i].id][1] = F[G.Node[i].id][0];
-            D[G.Node[i].id][0] = G.distance[Pair.nodeid][i];
-            F[G.Node[i].id][0] = Pair.nodeid;
+        if (D[i][0] > G.distance[Pair.nodeid][i]) {
+            D[i][1] = D[i][0];
+            F[i][1] = F[i][0];
+            D[i][0] = G.distance[Pair.nodeid][i];
+            F[i][0] = Pair.nodeid;
 
-        } else if (D[G.Node[i].id][1] > G.distance[Pair.nodeid][i]) {
-            D[G.Node[i].id][1] = G.distance[Pair.nodeid][G.Node[i].id];
-            F[G.Node[i].id][1] = Pair.nodeid;
+        } else if (D[i][1] > G.distance[Pair.nodeid][i]) {
+            D[i][1] = G.distance[Pair.nodeid][i];
+            F[i][1] = Pair.nodeid;
         }
 
     }
@@ -332,17 +333,17 @@ void Tabu::remove_facility(Graph &G, pair &Pair) {
     //int f = pcenter[tempPlace];
 
     for (int i = 0; i != numNode; i++) {
-        if (F[G.Node[i].id][0] = Pair.centerid) {
-            D[G.Node[i].id][0] = D[G.Node[i].id][1];
-            F[G.Node[i].id][0] = F[G.Node[i].id][1];
-            int nextp = find_next(G, G.Node[i].id, tempPlace);
-            D[G.Node[i].id][1] = G.distance[nextp][i];
-            F[G.Node[i].id][1] = nextp;
+        if (F[i][0] = Pair.centerid) {
+            D[i][0] = D[i][1];
+            F[i][0] = F[i][1];
+            int nextp = find_next(G, i, tempPlace);
+            D[i][1] = G.distance[nextp][i];
+            F[i][1] = nextp;
 
-        } else if (F[G.Node[i].id][1] = Pair.centerid) {
-            int nextp = find_next(G, G.Node[i].id, tempPlace);
-            D[G.Node[i].id][1] = G.distance[nextp][i];
-            F[G.Node[i].id][1] = nextp;
+        } else if (F[i][1] = Pair.centerid) {
+            int nextp = find_next(G, i, tempPlace);
+            D[i][1] = G.distance[nextp][i];
+            F[i][1] = nextp;
         }
     }
     pcenter[tempPlace] = pcenter[numPcenter + 1];

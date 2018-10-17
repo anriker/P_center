@@ -25,11 +25,14 @@ int  data_Readtsp(Graph &G) {
     cout << numNode << endl;
     while (!infile.eof()) {
        // for (int i = 0; i != numNode; i++) {
-            infile >> G.tempNode.id >> G.tempNode.x >> G.tempNode.y;
-            G.Node.push_back(G.tempNode);
-            //cout << G.tempNode.id << G.tempNode.x << G.tempNode.y << endl;
-       // }
-        
+        int tempid;
+        infile >> tempid;
+        G.tempNode.id = tempid - 1;
+        infile >> G.tempNode.x >> G.tempNode.y;
+        G.Node.push_back(G.tempNode);
+        cout << G.tempNode.id << G.tempNode.x << G.tempNode.y << endl;
+   // }
+
     }
     if (line) {
         delete line;
@@ -42,4 +45,3 @@ int  data_Readtsp(Graph &G) {
 
 }
 
- 
