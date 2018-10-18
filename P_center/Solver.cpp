@@ -1,3 +1,4 @@
+//计算delt有错误
 #include "Solver.h"
 //vector<vector <int> > ivec(m ,vector<int>(n,0)); //m*n的二维vector，所有元素初始化为0
 using namespace std;
@@ -5,7 +6,7 @@ static int iter = 1;
 Tabu::Tabu() {}
 Tabu::Tabu(Graph &G,int numP) :Sc(0),
     flag(1),
-    numNode(G.Node.size()), 
+    numNode(G.Node.size()-1), 
     numPcenter(numP),
     TabuTenure(numNode, vector<int >(numNode, 0)),  
     //pcenter(numP,0),
@@ -13,7 +14,7 @@ Tabu::Tabu(Graph &G,int numP) :Sc(0),
     D(numNode, vector<double>(2, 0))
     //G.distance(G.distance)
 {
-
+   // cout << numNode << endl;
     #if 0
     Sc = 0;
     numNode = Node.size();
@@ -55,12 +56,18 @@ void Tabu::tabusearch(Graph &G) {
     init(G, ScInfo);//初始解
     //int iter;//迭代次数
     initfuncation(G, pcenter, ScInfo);
-
+    for (int i = 0; i != pcenter.size(); i++) {
+        cout << pcenter[i] << " ";
+    }
+    cout<<endl<< ScInfo.Sc << endl;
     while (flag==1)//搜索条件
     {
         flag = 0;
         find_pair(G, ScInfo, Pair);//tabu发现交换对
+        if (flag == 0)
+            break;
         change_pair(G, Pair);//更新交换对 
+        initfuncation(G, pcenter, ScInfo);
         cout << "the iter: " << iter << " ,the Sc is:" << ScInfo.Sc << endl;
         for (int i = 0; i != pcenter.size(); i++) {            
             cout << pcenter[i] << " ";
@@ -213,6 +220,8 @@ void Tabu::find_pair(Graph &G, Scinfo &ScInfo, pair &Pair) {//确定交换对<nodei，
             id.push_back(i);
         }
     }
+    cout << "the maxId:"<<ScInfo.Scid << endl;
+   // cout << "the numNode :"<<numNode << endl;
     vector <Scinfo> tempScinfo(id.size());
     for (int i = 0; i != id.size(); i++) {
         //找最好的交换对
@@ -231,7 +240,9 @@ void Tabu::find_pair(Graph &G, Scinfo &ScInfo, pair &Pair) {//确定交换对<nodei，
                 tempF[j][1] = id[i];
             }
         }
-        vector <int> Mf(numPcenter, 0);
+       /* for (int j = 0; j != id.size(); j++)
+            cout << id[j] << "\t";*/
+        vector <double> Mf(numPcenter, 0);
         
         for (int t = 0; t!= pcenter.size(); t++) {//寻找加入节点后删除中心节点pcenter[j]得到的最长服务边
             for (int j = 0; j != numNode; j++) {
@@ -263,7 +274,7 @@ void Tabu::find_pair(Graph &G, Scinfo &ScInfo, pair &Pair) {//确定交换对<nodei，
         tempPair.push_back(tempPair1);
     }
     for (int i = 0; i != id.size(); i++) {
-        cout << tempPair[i].delt << ",";
+        cout << endl<<"add node "<<id[i]<<" and remove center "<<tempPair[i].centerid<< ", the delt: "<<tempPair[i].delt << ",";
         if (tempPair[i].delt > 0) {
             flag = 1;
         }
@@ -365,21 +376,21 @@ void Tabu::remove_facility(Graph &G, pair &Pair) {
             D[i][0] = D[i][1];
             F[i][0] = F[i][1];
             int nextp = find_next(G, i, Pair.centerid);
-            if (nextp == -1) {
-                flag = 0;
-               // pcenter[j] = Pair.centerid;
-                break;
-            }
+            //if (nextp == -1) {
+            //    flag = 0;
+            //    pcenter[j] = Pair.centerid;
+            //    break;
+            //}
             D[i][1] = G.distance[nextp][i];
             F[i][1] = nextp;
 
         } else if (F[i][1] = Pair.centerid) {
             int nextp = find_next(G, i, Pair.centerid);
-            if (nextp == -1) {
-                flag = 0;
-                //pcenter[j] = Pair.centerid;
-                break;
-            }
+            //if (nextp == -1) {
+            //    flag = 0;
+            //    //pcenter[j] = Pair.centerid;
+            //    break;
+            //}
             D[i][1] = G.distance[nextp][i];
             F[i][1] = nextp;
         }
