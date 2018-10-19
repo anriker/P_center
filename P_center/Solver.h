@@ -6,15 +6,17 @@
 #include <vector>
 #include <cstdlib>
 #include "Graph.h"
+#define MAX_ITER 1000
 #define count 2
+#define RECENCY 10
 //#define numPcenter 10
-#define max 1000
+#define max 10000
 #pragma once
 
 using namespace std;
  class Tabu
 {
-	double Sc;//目标函数值，即最大距离
+	float best_solution;//目标函数值，即最大距离
     int flag;
     int numNode;
     int numPcenter;
@@ -25,17 +27,17 @@ using namespace std;
 	//int **PtoNode;
 	vector <vector <int>> PtoNode;
 	vector <vector <int>> F;
-	vector <vector <double>> D;
-    //vector <vector<double>> adjDic;
-   // vector <vector <double>> distance;
+	vector <vector <float>> D;
+    //vector <vector<float>> adjDic;
+   // vector <vector <float>> distance;
     struct pair {
         int nodeid;
         int centerid;
-        double delt;
+        float delt;
     };
     struct Scinfo{
         int Scid;
-        double Sc;
+        float Sc;
     };
    // vector <int> Mf;
     
@@ -46,7 +48,7 @@ public:
     };
     Scpoint ScPoint;
 	Tabu();
-	Tabu(Graph &G,int numP);
+	Tabu(Graph &G,int numN,int numP);
     void compDic(Graph &G, int &numNode);
 	int findP(Graph &G,Scinfo &ScInfo);//找到最远服务边对应点的其他小于最远服务边的点，随机寻找下一个P点
 	void init(Graph &G,Scinfo &ScInfo);//初始解
@@ -62,7 +64,7 @@ public:
 	void remove_facility(Graph &G,pair &Pair);//删除服务点f，更新F表和D表
 	int fine_move(Graph &G);//寻找新增节点i，禁忌实现？
 	void change_pair(Graph &G,pair &Pair);//比较目标函数值Sc和新增节点后产生的距离Mf，取大者。
-    int find_next(Graph &G, int v,int fcenter);
+    int find_next(Graph &G, int v);
 	~Tabu();
 };
 
