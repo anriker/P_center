@@ -10,7 +10,7 @@
 #define count 2
 #define RECENCY 10
 //#define numPcenter 10
-#define max 10000
+#define MAX 10000
 #pragma once
 
 using namespace std;
@@ -49,11 +49,9 @@ public:
     Scpoint ScPoint;
 	Tabu();
 	Tabu(Graph &G,int numN,int numP);
-    void compDic(Graph &G, int &numNode);
 	int findP(Graph &G,Scinfo &ScInfo);//找到最远服务边对应点的其他小于最远服务边的点，随机寻找下一个P点
 	void init(Graph &G,Scinfo &ScInfo);//初始解
-	void updatePtoNode(Graph &G,int nextP);//更新服务点和被服务节点的关系
-	void initfuncation(Graph &G, vector <int> pCenter,Scinfo &ScInfo);//初始目标函数值
+	void initfuncation(Graph &G, Scinfo &ScInfo);//初始目标函数值
 	void initDandFtable(Graph &G,int tempP);
 	//void initFtable(vector <Nodes> &Node);
     void tabusearch(Graph &G);

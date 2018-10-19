@@ -5,47 +5,7 @@
 
 using namespace std;
 
-//int  data_Readtsp(Graph &G) {
-//    fstream infile;
-//    char *line = new char[10000];
-//    char *file = new char[40];
-//    //infile.getline(cin, file, '\n');
-//    cout << "please input filename:";
-//    cin >> file;
-//    infile.open(file, ios::in | ios::out);
-//    if (!infile) {
-//        cout << "error" << endl;
-//        cout << "please input filename:";
-//        cin >> file;
-//        infile.open(file, ios::in | ios::out);
-//    }
-//    infile.getline(line, 10000);
-//    int numNode;
-//    infile >> numNode;//节点的个数
-//    cout << numNode << endl;
-//    while (!infile.eof()) {
-//       // for (int i = 0; i != numNode; i++) {
-//        int tempid;
-//        infile >> tempid;
-//        G.tempNode.id = tempid - 1;
-//        infile >> G.tempNode.x >> G.tempNode.y;
-//        G.Node.push_back(G.tempNode);
-//        cout << G.tempNode.id << G.tempNode.x << G.tempNode.y << endl;
-//   // }
-//
-//    }
-//    if (line) {
-//        delete line;
-//    }
-//    if (file) {
-//        delete file;
-//    }
-//    infile.close();
-//    return numNode;
-//
-//}
-
-int readTspFile(Graph &G,std::string filename);
+int readTspFile(Graph &G, std::string filename);
 int readTxtFile(Graph &G, std::string filename);
 int  data_Readtsp(Graph &G) {
     /*string instanceList = INSTANCE_DIR;
@@ -57,18 +17,18 @@ int  data_Readtsp(Graph &G) {
         string instanceName;
         cout << "please input filename:";
        // cin >> instanceName;
-        instanceName = "kroA200.tsp";
+        instanceName = "pmed17.txt";// "u1060.tsp";// "u1817.tsp";//,"kroA200.tsp";
         cout << instanceName << endl;
        // stringstream ss(str);
         stringstream infile;
         infile >> instanceName ;
-        //if (instanceName.find("pmed") == string::npos) {
-        //    instanceName = instanceName;//+ ".txt";
-        //    numNode = readTxtFile(G, instanceName);
-        //} else {
-            instanceName = instanceName;//+ ".tsp";
+        if (instanceName.find("pmed") == string::npos) {
+            instanceName = instanceName;//+ ".txt";
             numNode = readTspFile(G, instanceName);
-       // }
+        } else {
+            instanceName = instanceName;//+ ".tsp";
+            numNode = readTxtFile(G, instanceName);
+        }
        
     //}
     return numNode;
@@ -93,7 +53,7 @@ int readTspFile(Graph &G,std::string filename) {
        Const++;
     }
     int numNode = G.Node.size();
-    cout << numNode << endl;
+    cout <<"numNode: "<< numNode << endl;
 
     G.distance = new float *[numNode];
     for (int i = 0; i != numNode ; i++) {
@@ -107,43 +67,52 @@ int readTspFile(Graph &G,std::string filename) {
                 G.distance[G.Node[i].id][G.Node[j].id] = 0;
             } else {
                 G.distance[G.Node[i].id][G.Node[j].id] = G.distance[G.Node[j].id][G.Node[i].id] = sqrt(x2 + y2);
-                //G.distance[G.Node[j].id][G.Node[i].id] = G.distance[G.Node[i].id][G.Node[j].id];
             }
-
-
         }
     }
     return numNode;
 
 }
 
-//int  readTxtFile(Graph &G,std::string filename) {
-//    int numNode=0;
-//    std::ifstream readFile(filename);
-//    std::string str;
-//    float MAXNUM = std::numeric_limits<float>::max();
-//    G.distance = new float *[numNode + 1];
-//    int Const = 0, u1, u2, dis, len = numNode;
-//    for (int i = 0; i < len; i++) {
-//        for (int j = 0; j < len; j++) {
-//            G.distance[i][j] = MAXNUM;
-//        }
-//    }
-//    while (std::getline(readFile, str)) {
-//        if (Const && str != "EOF") {
-//            std::stringstream infile(str);
-//            infile >> u1 >> u2 >> dis;
-//            G.distance[u1 - 1][u2 - 1] = dis;
-//            G.distance[u2 - 1][u1 - 1] = dis;
-//        }
-//        Const++;
-//    }
-//    for (int k = 0; k < len; k++) {
-//        for (int i = 0; i < len; i++) {
-//            for (int j = 0; j < len; j++) {
-//                G.distance[i][j] = std::min(G.distance[i][j], G.distance[i][k] + G.distance[k][j]);
-//            }
-//        }
-//    }
-//    return numNode;
-//}
+int  readTxtFile(Graph &G,std::string filename) {
+    int numNode,edgeNode,Pcenter;
+    std::ifstream readfile(filename);
+    std::string str;
+    //int Const = 0;
+    float maxnum = std::numeric_limits<float>::max();
+    std::getline(readfile, str);
+    std::stringstream infile(str);
+    infile >> numNode >> edgeNode >> Pcenter;
+    cout << "numNode,edgeNode,Pcenter:" << numNode << "," << edgeNode << "," << Pcenter << endl;
+
+    G.distance = new float *[numNode];
+    for (int i = 0; i != numNode; i++) {
+        G.distance[i] = new float[numNode];
+    }
+
+    int  u1, u2, dis;
+    for (int i = 0; i < numNode; i++) {
+        for (int j = i; j < numNode; j++) {
+            G.distance[j][i] = G.distance[i][j] = maxnum;
+        }
+    }
+    while (std::getline(readfile, str)) {
+        if ( str != "EOF") {
+            std::stringstream infile(str);
+            infile >> u1 >> u2 >> dis;
+            //cout << u1 << "," << u2 << "," <<dis<< endl;
+            G.distance[u1 - 1][u2 - 1] = dis;
+            G.distance[u2 - 1][u1 - 1] = dis;
+        }
+    
+    }
+    for (int k = 0; k < numNode; k++) {
+        for (int i = 0; i < numNode; i++) {
+            for (int j = 0; j < numNode; j++) {
+                G.distance[i][j] = std::min(G.distance[i][j], G.distance[i][k] + G.distance[k][j]);
+            }
+        }
+    }
+    
+    return numNode;
+}

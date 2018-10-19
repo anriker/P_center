@@ -1,8 +1,7 @@
-//计算delt有错误
 #include "Solver.h"
 //vector<vector <int> > ivec(m ,vector<int>(n,0)); //m*n的二维vector，所有元素初始化为0
 using namespace std;
-static int iter = 1;
+static int iter;
 Tabu::Tabu() {}
 Tabu::Tabu(Graph &G, int numN, int numP) :
 best_solution(0),
@@ -42,13 +41,14 @@ void Tabu::tabusearch(Graph &G) {
     Scinfo ScInfo = { 0,0 };
     init(G, ScInfo);//初始解
     //int iter;//迭代次数
-    initfuncation(G, pcenter, ScInfo);
+    initfuncation(G, ScInfo);
     best_solution = ScInfo.Sc;
    /* for (int i = 0; i != pcenter.size(); i++) {
         cout << pcenter[i] + 1 << " ";
     }*/
     cout << ScInfo.Sc << endl;
     clock_t start_time = clock();
+    iter = 1;
     while (iter != MAX_ITER)//搜索条件
     {
         flag = 0;
@@ -56,7 +56,7 @@ void Tabu::tabusearch(Graph &G) {
         /*if (flag == 0)
             break;*/
         change_pair(G, Pair);//更新交换对 
-        initfuncation(G, pcenter, ScInfo);
+        initfuncation(G, ScInfo);
         if (abs(ScInfo.Sc - best_solution) < 0.01) {
             break;
         }
@@ -81,38 +81,20 @@ void Tabu::tabusearch(Graph &G) {
 }
 
 void Tabu::init(Graph &G, Scinfo &ScInfo) {
-    //srand(time(0));
+    srand(rand()% MAX);
     pcenter.push_back(rand() % numNode - 1);
-    //pcenter[0]=rand()% numNode-1;
-    //int longestN;
-    //for (int i = 0; i != numNode; i++) {
-    //	if(pcenter[0]!=i)
-    //		PtoNode[0].push_back = Node[i].id;//1对应的中心点是p[1]
-    //}
     for (int i = 0; i != numNode; i++) {
         D[i][0] = G.distance[pcenter[0]][i];
         F[i][0] = pcenter[0];
-
     }
-
-    initfuncation(G, pcenter, ScInfo);
+    initfuncation(G, ScInfo);
     for (int i = 1; i != numPcenter; i++) {
         int tempP = findP(G, ScInfo);
         initDandFtable(G, tempP);
         pcenter.push_back(tempP);
-        initfuncation(G, pcenter, ScInfo);
-
+        initfuncation(G, ScInfo);
     }
 }
-
-//void Tabu::updatePtoNode(vector <Nodes> &Node,int nextP) {
-//	for(int j=0;j!=pcenter.size();j++)
-//		for (int i = 0; i != numNode; i++) {
-//			if (G.distance[pcenter[j]][Node[i].id] > G.distance[nextP][Node[i].id])
-//				PtoNode[pcenter.size() + 1][i] = Node[i].id;
-//			else PtoNode[pcenter.size() + 1][i] = -1;
-//		}
-//}
 
 int Tabu::findP(Graph &G, Scinfo &ScInfo) {
     vector <int> id;
@@ -120,17 +102,14 @@ int Tabu::findP(Graph &G, Scinfo &ScInfo) {
     for (int i = 0; i != numNode; i++) {
         if (G.distance[ScInfo.Scid][i] < ScInfo.Sc) {
             id.push_back(i);
-            //cout << id[i] << " ";
         }
-
     }
-
     int tempi = 0;
     if (id.size() > 1) {
         srand(time(0));
         tempi = rand() % id.size();
     }
-    //else if (id.size() == 0) {//当前最长服务边对应的点已经找不到可改善的点
+    //else if (id.size() == 0) {//当前最长服务边对应的点已经找不到可改善的点,应该判
 
     //}
 
@@ -154,7 +133,6 @@ void Tabu::initDandFtable(Graph &G, int tempP) {
                 F[j][1] = pcenter[0];
             }
         } else {
-
             if (G.distance[tempP][j] < D[j][0]) {
                 D[j][1] = D[j][0];
                 F[j][1] = F[j][0];
@@ -170,7 +148,7 @@ void Tabu::initDandFtable(Graph &G, int tempP) {
     }
 }
 
-void Tabu::initfuncation(Graph &G, vector <int> pcenter, Scinfo &ScInfo) {
+void Tabu::initfuncation(Graph &G, Scinfo &ScInfo) {
     //int tempid1 = 0;//记录寻找过程中目标函数点
     int tempid2 = 0;
     float tempSc = 0;
@@ -414,7 +392,7 @@ void Tabu::remove_facility(Graph &G, pair &Pair) {
 
 
 int Tabu::find_next(Graph &G, int v) {
-    float tempsecondmax = max;
+    float tempsecondmax = MAX;
     int tempsecondmaxP = -1;
     for (int j = 0; j != numPcenter; j++) {
         if (pcenter[j] != F[v][0] && tempsecondmax > G.distance[pcenter[j]][v]) {
