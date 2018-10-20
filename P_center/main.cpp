@@ -19,10 +19,10 @@ int main(int argv, int argc[]) {
     int numP;
     cout << "please input number of center:";
     cin >> numP;
-    while (1) {
+    //while (1) {
         Tabu T(G, numNode, numP);
         T.tabusearch(G);
-    }
+   // }
     system("pause");
     return 0;
 }

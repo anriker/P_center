@@ -8,7 +8,7 @@
 #include "Graph.h"
 #define MAX_ITER 1000
 #define count 2
-#define RECENCY 10
+#define RECENCY 5
 //#define numPcenter 10
 #define MAX 10000
 #pragma once
@@ -23,6 +23,7 @@ using namespace std;
 	//int **Table;//禁忌表
     vector <vector<int>> TabuTenure;
     vector<int> pcenter;
+    vector<int> sameScid;
    // int Mf;
 	//int **PtoNode;
 	vector <vector <int>> PtoNode;
@@ -53,6 +54,7 @@ public:
 	void init(Graph &G,Scinfo &ScInfo);//初始解
 	void initfuncation(Graph &G, Scinfo &ScInfo);//初始目标函数值
 	void initDandFtable(Graph &G,int tempP);
+    void find_sameScid(Graph &G,Scinfo &ScInfo);
 	//void initFtable(vector <Nodes> &Node);
     void tabusearch(Graph &G);
     int findadd_facility(Graph &G);
@@ -63,6 +65,7 @@ public:
 	int fine_move(Graph &G);//寻找新增节点i，禁忌实现？
 	void change_pair(Graph &G,pair &Pair);//比较目标函数值Sc和新增节点后产生的距离Mf，取大者。
     int find_next(Graph &G, int v);
+    void check(Graph &G);
 	~Tabu();
 };
 
