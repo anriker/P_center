@@ -11,6 +11,7 @@
 #define RECENCY 5
 //#define numPcenter 10
 #define MAX 10000
+#define MIN -1000
 #pragma once
 
 using namespace std;
@@ -58,7 +59,7 @@ public:
 	//void initFtable(vector <Nodes> &Node);
     void tabusearch(Graph &G);
     int findadd_facility(Graph &G);
-    void find_pair(Graph &G,Scinfo &ScInfo,pair &Pair);
+    int find_pair(Graph &G,Scinfo &ScInfo,pair &Pair);
 	void add_facility(Graph &G,pair &Pair);//新增服务点f，更新F表和D表
     int findremove_facility(Graph &G,int f);
 	void remove_facility(Graph &G,pair &Pair);//删除服务点f，更新F表和D表

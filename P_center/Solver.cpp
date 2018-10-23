@@ -46,25 +46,30 @@ void Tabu::tabusearch(Graph &G) {
    /* for (int i = 0; i != pcenter.size(); i++) {
         cout << pcenter[i] + 1 << " ";
     }*/
-    cout << ScInfo.Sc << endl;
+    cout <<endl<< "the init best solution:"<<ScInfo.Sc << endl;
     clock_t start_time = clock();
     iter = 1;
-    while (iter != MAX_ITER&&flag==1)//搜索条件
+    while (iter != MAX_ITER)//搜索条件
     {
         flag = 0;
-        find_pair(G, ScInfo, Pair);//tabu发现交换对
-        /*if (flag == 0)
-            break;*/
+       int flag= find_pair(G, ScInfo, Pair);//tabu发现交换对
+       
+       if (flag == 0)
+           break;
         change_pair(G, Pair);//更新交换对 
         initfuncation(G, ScInfo);
+        /*for (int i = 0; i != pcenter.size(); i++) {
+            cout << pcenter[i] << " ";
+        }cout << endl;*/
         /*if (ScInfo.Sc >= best_solution) {
             break;
         }*/
-        if (ScInfo.Sc < best_solution)
-            best_solution = ScInfo.Sc;
-        cout << "change nodeid :" << Pair.nodeid << " and centerid " << Pair.centerid;
-        cout << " ,the Sc is:" << ScInfo.Sc << endl;
-      
+        /*if (Pair.centerid == Pair.nodeid)
+            break;*/
+        /*if (ScInfo.Sc < best_solution)
+            best_solution = ScInfo.Sc;*/
+       // cout << "change nodeid :" << Pair.nodeid << " and centerid " << Pair.centerid;
+        cout << " the Sc is:" << ScInfo.Sc << endl;
         iter++;
     }
     clock_t end_time = clock();
@@ -74,7 +79,7 @@ void Tabu::tabusearch(Graph &G) {
     cout << "the pcenters of best solution :";
    
     for (int i = 0; i != pcenter.size(); i++) {
-        cout << pcenter[i]+1 << " ";
+        cout << pcenter[i] << " ";
     }
     cout << endl;
     cout << "the most solution: " << best_solution << endl;
@@ -84,7 +89,7 @@ void Tabu::tabusearch(Graph &G) {
 
 void Tabu::init(Graph &G, Scinfo &ScInfo) {
     srand(rand()% MAX);
-    pcenter.push_back(rand() % numNode - 1);
+    pcenter.push_back(rand() % numNode);
     for (int i = 0; i != numNode; i++) {
         D[i][0] = G.distance[pcenter[0]][i];
         F[i][0] = pcenter[0];
@@ -199,37 +204,40 @@ void Tabu::find_sameScid(Graph &G,Scinfo &ScInfo) {
 //
 //}
 
-void Tabu::find_pair(Graph &G, Scinfo &ScInfo, pair &Pair) {//确定交换对<nodei，centerj>
-    float delt = 0.0;
+int Tabu::find_pair(Graph &G, Scinfo &ScInfo, pair &Pair) {//确定交换对<nodei，centerj>
+   // float delt = 0.0;
     vector <int> id;//记录小于最长边的点对应的小于最长服务边的点
     vector <pair> tempPair;
     int tempP;
-    pair tabu_pair = { 0 };
-    pair no_tabu_pair = { 0 };
+    pair tabu_pair;// = { 0 };
+    tabu_pair.delt = MIN;
+    pair no_tabu_pair;// = { 0 };
+    no_tabu_pair.delt = MIN;
     int no_tabu_samenumber = 0;
     int tabu_samenumber = 0;
     find_sameScid(G, ScInfo);
     int tempcount = 0;
-    while (id.size() == 0) {
-       
-        for (int i = 0; i != numNode; i++) {
-            if (G.distance[ScInfo.Scid][i] < ScInfo.Sc) {
-                id.push_back(i);
-            }
+    int m =0;
+   // cout << "the node:" << endl;
+    for (int i = 0; i != numNode; i++) {
+        //for(int j=0;j!=numPcenter;j++)
+
+        if (G.distance[ScInfo.Scid][i] < ScInfo.Sc) {
+            id.push_back(i);
+           // cout << i << "\t";
         }
-        int m = rand() % sameScid.size();
-        ScInfo.Scid = sameScid[m];
-        tempcount++;
     }
-    if (tempcount == sameScid.size())
-        flag = 0;
+    //cout << id.size()<< endl;
+    if (id.size() == 0)
+        return 0;
 
     //cout << "the maxId:"<<ScInfo.Scid << endl;
     //cout << "the maxSc:" << ScInfo.Sc << endl;
-    vector <Scinfo> tempScinfo(id.size());
+    vector <Scinfo> tempScinfo((id.size()));
     for (int i = 0; i != id.size(); i++) {
         //找最好的交换对
         pair tempPair1;
+        tempScinfo[i].Sc = MAX;
         vector <vector <int> > tempF(F);
         vector <vector <float> > tempD(D);
         for (int j = 0; j != numNode; j++) {//添加了服务点id[i]
@@ -254,10 +262,8 @@ void Tabu::find_pair(Graph &G, Scinfo &ScInfo, pair &Pair) {//确定交换对<nodei，
         }
         //这里考虑是否欠佳，真的只是找最好的服务边删吗，是否应该吧Tabu直接加上来，不应该分开
         tempPair1.nodeid = id[i];
-        tempScinfo[i].Sc = Mf[0];
-        tempPair1.centerid = pcenter[0];
-        tempPair1.delt = ScInfo.Sc - tempScinfo[i].Sc;
-        for (int t = 1; t != pcenter.size(); t++) {
+        //tempPair1.delt = ScInfo.Sc - tempScinfo[i].Sc;
+        for (int t = 0; t != pcenter.size(); t++) {
             if (tempScinfo[i].Sc > Mf[t]) {
                 tempScinfo[i].Sc = Mf[t];
                 tempPair1.centerid = pcenter[t];
@@ -271,48 +277,54 @@ void Tabu::find_pair(Graph &G, Scinfo &ScInfo, pair &Pair) {//确定交换对<nodei，
 
                 }
             }
-
-        }
+           // cout << Mf[t] << "@@";
+        }//cout << endl;
         tempPair.push_back(tempPair1);
-    }
-    for (int i = 0; i != id.size(); i++) {
-       // cout << endl<<"add node "<<id[i]<<" and remove center "<<tempPair[i].centerid<< ", the delt: "<<tempPair[i].delt << ",";
         if (tempPair[i].delt > 0.01) {
             flag = 1;
         }
-    }//cout << endl;
+ 
+    }
+
     for (int i = 0; i != id.size(); i++) {
         if (TabuTenure[tempPair[i].centerid][tempPair[i].nodeid] < iter) {//update the no_tabu best move,有错误;
             if (tempPair[i].delt > no_tabu_pair.delt) {
                 no_tabu_pair = tempPair[i];
-                no_tabu_samenumber = 1;
+                //no_tabu_samenumber = 1;
             } else if (tempPair[i].delt == no_tabu_pair.delt) {
-                no_tabu_samenumber++;
-                if (rand() % no_tabu_samenumber == 0)
+                //no_tabu_samenumber++;
+                if(rand()%2==0)
+                //if (rand() % no_tabu_samenumber == 0)
                     no_tabu_pair = tempPair[i];
             }
         } else {//update the tabu best move;
             if (tempPair[i].delt > tabu_pair.delt) {
                 tabu_pair = tempPair[i];
-                tabu_samenumber = 1;
+                //tabu_samenumber = 1;
             } else if (tempPair[i].delt == tabu_pair.delt) {
-                tabu_samenumber++;
-                if (rand() % tabu_samenumber == 0)
+                //tabu_samenumber++;
+                if(rand()%2==0)
+                //if (rand() % tabu_samenumber == 0)
                     tabu_pair = tempPair[i];
             }
         }
 
     }
-    if ((tabu_pair.delt > no_tabu_pair.delt))// && (tabu_pair.delt > 0.01)) //解禁条件：禁忌解优于当前查找的非禁忌解中最好的且优于历史最优解
+    
+    if ((tabu_pair.delt > no_tabu_pair.delt)&& tabu_pair.delt>0)// && (tabu_pair.delt > 0.01)) //解禁条件：禁忌解优于当前查找的非禁忌解中最好的且优于历史最优解
     {
+        if (Pair.centerid == tabu_pair.nodeid&&Pair.nodeid==tabu_pair.centerid) {
+            return 0;
+        }
         Pair = tabu_pair;
         cout << "**" << endl;
-    } else {
-        Pair = no_tabu_pair;
-        cout << "##" << endl;
-    }
-       
+    } else if(no_tabu_pair.delt>=0){
 
+        Pair = no_tabu_pair;
+        //cout << "##" << endl;
+    } else return 0;
+       
+    return 1;
 
 }
 
@@ -376,7 +388,8 @@ void Tabu::remove_facility(Graph &G, pair &Pair) {
         }
     }
     //int f = pcenter[tempPlace];
-    cout << endl;
+    //cout << endl;
+    //cout << "Pair:" << Pair.centerid << "," << Pair.nodeid << endl;
     for (int i = 0; i != numNode; i++) {
         if (F[i][0] == Pair.centerid) {
             D[i][0] = D[i][1];
@@ -419,18 +432,28 @@ int Tabu::find_next(Graph &G, int v) {
     float tempsecondmax = MAX;
     int tempsecondmaxP = -1;
     for (int j = 0; j != numPcenter; j++) {
-        if (pcenter[j] != F[v][0] && tempsecondmax > G.distance[pcenter[j]][v]) {
-            tempsecondmax = G.distance[pcenter[j]][v];
-            tempsecondmaxP = pcenter[j];
-        }
-        else if (pcenter[j] != F[v][0] && tempsecondmax == G.distance[pcenter[j]][v]) {
-            if (rand() % 2 == 0) {
+         //cout << pcenter[j] << "\t";
+      
+        if (pcenter[j] != F[v][0]) {
+            if (tempsecondmax > G.distance[pcenter[j]][v]) {
                 tempsecondmax = G.distance[pcenter[j]][v];
                 tempsecondmaxP = pcenter[j];
+            }else if (tempsecondmax == G.distance[pcenter[j]][v]) {
+                if (rand() % 2 == 0) {
+                   // tempsecondmax = G.distance[pcenter[j]][v];
+                    tempsecondmaxP = pcenter[j];
+                }
             }
-        }
-    }
 
+        } 
+            
+
+        //} else if (pcenter[j] == v) {
+        //    cout << "reuse:" << pcenter[j] << v;
+        //    cout << "error" << endl;//xx?
+        //}
+        
+    }//cout << endl;
     return tempsecondmaxP;
 }
 
@@ -445,7 +468,7 @@ void Tabu::change_pair(Graph &G, pair &Pair) {
 }
 
 void Tabu::check(Graph &G) {
-    cout << best_solution << endl;
+   // cout << best_solution << endl;
     for (int i = 0; i != numNode; i++) {
         if (D[i][0] > best_solution) {
             cout << "node " << i-1 << " error," <<"the dis is:"<<D[i][0]<< endl;

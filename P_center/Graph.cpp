@@ -17,7 +17,7 @@ int  data_Readtsp(Graph &G) {
         string instanceName;
         cout << "please input filename:";
        // cin >> instanceName;
-        instanceName ="pmed17.txt" ;// "u1060.tsp" ;// "u1817.tsp";//,"kroA200.tsp";
+        instanceName = "pmed1.txt"; //"u1060.tsp"; // "u1817.tsp";//,"kroA200.tsp";
         cout << instanceName << endl;
        // stringstream ss(str);
         stringstream infile;
